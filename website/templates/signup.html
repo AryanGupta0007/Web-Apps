@@ -1,0 +1,30 @@
+{%extends "base.html"%}
+{% block title %}Register{% endblock %}
+{% block content %}
+<form action="#" method="post">
+    <table>
+        <tr>
+            <td><label>Name</label></td>
+            <td><input type="text" required name="name"></td>
+            <br>
+        </tr>
+        <tr>
+            <td><label>Email</label></td>
+            <td><input type="email" required name="email"></td>
+            <br>
+        </tr>
+        <tr>
+            <td><label>Password 1</label></td>
+            <td><input type="password" required name="password1"></td>
+            <br>
+        </tr>
+        <tr>
+            <td><label>Password 2</label></td>
+            <td><input type="password" required name="password2"></td>
+            <br>
+        </tr>
+        <tr><td><button type="submit">Register</button></td></tr>
+        
+        
+</form>
+{% endblock %}

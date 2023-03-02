@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10;url=/update_price" />
+    <title>Price</title>
+</head>
+<body>
+        
+    {% for msgs in msg %}
+    {{msgs}}
+    <!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>     -->
+    <!-- <py-config>
+        packages = ["time"]
+
+    </py-config>
+    <py-script>
+        import time
+        time.sleep(5)
+
+    </py-script> -->
+    <!-- <script>
+        var timer = setTimeout(function() {
+            window.location='http://google.com'
+        }, 3000);
+    </script>    -->
+    {% endfor %}       
+</body>
+</html>

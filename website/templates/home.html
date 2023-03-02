@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>
+    <table>
+
+    <tr><td>Coin Name</td><td>Symbol</td></tr>
+    <tr><td>Bitcoin</td><td>BTC</td></tr>
+    <tr><td>Ethereum</td><td>ETH</td></tr>
+    <tr><td>TetherUS</td><td>USDT</td></tr>
+    <tr><td>Ripple</td><td>XRP</td></tr>
+    <tr><td>Dogecoin</td><td>DOGE</td></tr>
+
+    
+<form action="#" method="post">
+    <table>
+        <tr>
+            <td><label>Symbol</label></td>
+            <td><input type="text" required name="Symbol"></td>
+            <br>
+        </tr>
+        <tr>
+            <td><label>Alert Price</label></td>
+            <td><input type="text" required name="Alert-Price"></td>
+            <br>
+        </tr>
+        <tr>
+            <td><label>Notification: Greater or Lower</label></td>
+            <td><input type="text" required name="Notification"></td>
+            <br>
+        </tr>
+        
+        <tr><td><button type="submit">Submit</button></td></tr>
+{% endblock %}
