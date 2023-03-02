@@ -6,20 +6,23 @@ import sys
 import os
 import time
 import telebot
-
+import datetime
+from datetime import timedelta
+from .models import User
+from . import db 
 views = Blueprint("views", __name__)
 apiToken = "6031902860:AAEsuPRks6KfXlpkeKWcgEQ_lYtm_QTsomM"
 
+date_list = []
 # bot = telebot.TeleBot(TELEGRAM_BOT_API)
 # @bot.message_handler(commands=["Alert"])
 # def alert(message):
 #     bot.reply_to(message, "")
 def send_message_to_group(message):
     # send_message = f"https://api.telegram.org/bot{TELEGRAM_BOT_API}/sendMessage?chat_id=838452194&text={message}"
-    chatID = '-838452194'
+    chatID = '-956779181'
     apiURL = f'https://api.telegram.org/bot{apiToken}/sendMessage'
     response = requests.post(apiURL, json={'chat_id': chatID, 'text': message})
-    print(response.text)
 
 
 def price_stats(prices):
@@ -51,43 +54,58 @@ def do_nothing(price_dollar, alert_price, symbol, difference):
 
 
 
-def alert_user(current_price, alert_price, notification):
-    os.system("cls")
+def alert_user(current_price, alert_price, notification, email):
+            
+    notification = session["notification"] 
+    alert_price = session["alert_price"] 
+    symbol = session["symbol"] 
+    initial_price = session["initial_price"] 
+        
+    # date_time = Alert_Time(date_time=current_time, user.id=)
+    # db.session()
+    # email = session["email"]
+
+    current_date = datetime.datetime.now().strftime("%d:%m:%Y")
+    user = User.query.filter_by(email=email).first()
+    # os.system("cls")
     print("Press \"Q\" to exit the program")
     print("Press \"S\" to see the price stats")         
         
-    msg = f"I suggest action (buy or sell) \t as the price currently is: ${current_price}\t which is {notification} to {alert_price}"
-    send_message_to_group(msg)
-    sys.stdout.flush()
-
-
+    msg = f"Dear {user.name} I suggest action (buy or sell) \t as the price currently is: ${current_price}\t which is {notification} to {alert_price}"
+    if current_date not in date_list:
+    
+        send_message_to_group(msg)
+        date_list.append(current_date)
+        print(date_list)
+        time.sleep(10)
+    else:
+        print(msg)    
+    
 @views.route("/")
 def home():
     return render_template("base.html")
 
 @views.route("/display", methods=["POST", "GET"])
 def display():
-    time.sleep(10)
     # if request.method == "POST":
     #     return render_template("display.html")
-    return render_template("display.html")
+    
+    time.sleep(5)
+    return redirect(url_for("views.update_price"))
     
 @views.route("/update_price", methods=["POST", "GET"])
 def update_price():
         notification = session["notification"] 
         alert_price = session["alert_price"] 
         symbol = session["symbol"] 
+        initial_price = session["initial_price"] 
+        email = session["email"]
+
         os.system("cls")
         print("Press \"Q\" to exit the program")
         print("Press \"S\" to see the price stats")
     
-        try:
-            get_data = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT").json()
-            initial_price = get_data["price"]
-            
-        except:
-            sys.exit("Sorry you entered an invalid coin name. Retry")
-
+      
         URL_for_dollar = f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT"
 
         prices_dollar = []
@@ -95,7 +113,7 @@ def update_price():
                     
         # os.system("cls")
         print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
-        time.sleep(10)
+        # time.sleep(10)
         symbol_data = {"price":prices_dollar, "time":times}    
         get_Data_Dollar = requests.get(URL_for_dollar).json()
         price_dollar = get_Data_Dollar["price"]
@@ -111,28 +129,33 @@ def update_price():
         if (notification == "greater"):
             
             if (alert_price < current_price):
-                alert_user(current_price, alert_price, notification)
+                
+                alert_user(current_price, alert_price, notification, email)
                 
             else:
-                msg = do_nothing(price_dollar, alert_price, symbol, difference)
-                flash(msg)
-                return redirect(url_for("views.display"))
+                do_nothing(price_dollar, alert_price, symbol, difference)
+                
                     
                 
         elif (notification == "lower"):
             if (alert_price > current_price):
-                alert_user(current_price, alert_price, notification)
+                alert_user(current_price, alert_price, notification, email)
             else:
-                msg = do_nothing(price_dollar, alert_price, symbol, difference)
-                flash(msg)
-                return redirect(url_for("views.display"))
+                do_nothing(price_dollar, alert_price, symbol, difference)
+                
+        return redirect(url_for("views.display"))
 
     
     
 
 @views.route("/home", methods=["GET", "POST"])
 def homepage():
-    if request.method == "POST":
+    if request.method == "GET":
+        email = request.args.get("email")
+        session["email"] = email    
+        return render_template("home.html")
+
+    elif request.method == "POST":
         
         symbol = request.form.get("Symbol")
         alert_price = request.form.get("Alert-Price")
@@ -140,7 +163,7 @@ def homepage():
         session["notification"] = notification
         session["alert_price"] = alert_price
         session["symbol"] = symbol
-
+        email = session["email"]
         os.system("cls")
         print("Press \"Q\" to exit the program")
         print("Press \"S\" to see the price stats")
@@ -148,7 +171,7 @@ def homepage():
         try:
             get_data = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT").json()
             initial_price = get_data["price"]
-            
+            session["initial_price"] = initial_price
         except:
             sys.exit("Sorry you entered an invalid coin name. Retry")
         
@@ -175,19 +198,17 @@ def homepage():
             difference = round(difference, 2)
             if (notification == "greater"):
                 
-                if (alert_price < current_price):
-                    alert_user(current_price, alert_price, notification)
-                    
+                if (alert_price < current_price):                  
+                    pass                    
                 else:
                     do_nothing(price_dollar, alert_price, symbol, difference)
                         
                     
             elif (notification == "lower"):
                 if (alert_price > current_price):
-                    alert_user(current_price, alert_price, notification)
+                    pass
                 else:
                     do_nothing(price_dollar, alert_price, symbol, difference)
                     
-            
+            return redirect(url_for("views.display"))
 
-    return render_template("home.html")
