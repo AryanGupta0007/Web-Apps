@@ -16,6 +16,7 @@ apiToken = "6031902860:AAEsuPRks6KfXlpkeKWcgEQ_lYtm_QTsomM"
 date_list = []
 user_entry = {}
 check_entry = {}
+alerts = []
 # bot = telebot.TeleBot(TELEGRAM_BOT_API)
 # @bot.message_handler(commands=["Alert"])
 # def alert(message):
@@ -116,15 +117,17 @@ def alert_user(current_price, alert_price, notification, email):
         user_entry = {user.email : [alert_price, current_date, symbol, notification]} 
         date_list.append(user_entry)
         print(date_list)
-        last_alert = datetime.datetime.now()
+        last_alert = datetime.datetime.now().strftime("%d:%m:%Y %H:%M:%S")
+        alerts.append(last_alert)
         time.sleep(10)
     else:
         print(msg)
            
 
-    return last_alert, current_alert
+    
 @views.route("/")
 def home():
+
     return render_template("base.html")
 
 @views.route("/display", methods=["POST", "GET"])
@@ -148,8 +151,10 @@ def update_price():
         alert_price = session["alert_price"]
         email = session["email"]
         # email = request.args.get("email")
+        take_action()
         try:
-            last_alert, current_alert = take_action()
+            current_alert = f"{notification} to ${alert_price}"
+            last_alert = alerts[-1]
         except:
             last_alert = "No alerts till now"
             current_alert = f"{notification} to ${alert_price}"
@@ -159,6 +164,7 @@ def update_price():
 @views.route("/home", methods=["GET", "POST"])
 def homepage():
     if request.method == "GET":
+        alerts.clear()
         get_data_btc = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=BTCUSDT").json()
         get_data_xrp = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=XRPUSDT").json()
         get_data_doge = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=DOGEUSDT").json()
