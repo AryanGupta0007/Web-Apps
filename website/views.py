@@ -45,14 +45,8 @@ def price_stats(prices):
 
 
 
-def do_nothing(price_dollar, alert_price, symbol, difference):
-    os.system("cls") 
-    print("Press \"Q\" to exit the program")
-    print("Press \"S\" to see the price stats")         
-    
-            
-    print(f"Symbol: {symbol}\t\t Current Price: ${round(float(price_dollar), 2)}\t\tAlert Price: ${alert_price}\t Difference from alert price: ${difference}\t", end="")
-    sys.stdout.flush()
+def do_nothing():
+   pass
 
 def take_action():
     notification = session["notification"] 
@@ -85,7 +79,7 @@ def take_action():
             alert_user(current_price, alert_price, notification, email)
             
         else:
-            do_nothing(price_dollar, alert_price, symbol, difference)
+            do_nothing()
             
                 
             
@@ -93,7 +87,7 @@ def take_action():
         if (alert_price > current_price):
             alert_user(current_price, alert_price, notification, email)
         else:
-            do_nothing(price_dollar, alert_price, symbol, difference)
+            do_nothing()
             
     
 
@@ -104,27 +98,31 @@ def alert_user(current_price, alert_price, notification, email):
     alert_price = session["alert_price"] 
     symbol = session["symbol"] 
     initial_price = session["initial_price"] 
-    
+    current_alert = f"{notification} to ${alert_price}"
 
     current_date = datetime.datetime.now().strftime("%d:%m:%Y")
     user = User.query.filter_by(email=email).first()
     # os.system("cls")
     print("Press \"Q\" to exit the program")
-    print("Press \"S\" to see the price stats")         
-    check_entry = {str(user.email), current_date}        
+    print("Press \"S\" to see the price stats")    
+    email = user.email     
+    check_entry = {user.email : [alert_price, current_date, symbol, notification]}        
     msg = f"Dear {user.name} (email = {user.email}) I suggest action (buy or sell) on {symbol} \t as the price currently is: ${current_price}\t which is {notification} to ${alert_price}"
     print(check_entry)
     print(date_list)
     if check_entry not in date_list:
     
         send_message_to_group(msg)
-        user_entry = {user.email, current_date} 
+        user_entry = {user.email : [alert_price, current_date, symbol, notification]} 
         date_list.append(user_entry)
         print(date_list)
+        last_alert = datetime.datetime.now()
         time.sleep(10)
     else:
-        print(msg)    
-    
+        print(msg)
+           
+
+    return last_alert, current_alert
 @views.route("/")
 def home():
     return render_template("base.html")
@@ -139,9 +137,24 @@ def display():
     
 @views.route("/update_price", methods=["POST", "GET"])
 def update_price():
-    take_action()
-    return redirect(url_for("views.display"))
-    
+
+    if request.method == "GET":
+        get_data_btc = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=BTCUSDT").json()
+        get_data_xrp = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=XRPUSDT").json()
+        get_data_doge = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=DOGEUSDT").json()
+        get_data_eth = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=ETHUSDT").json()
+        get_data_bnb = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=BNBUSDT").json()
+        notification = session["notification"]
+        alert_price = session["alert_price"]
+        email = session["email"]
+        # email = request.args.get("email")
+        try:
+            last_alert, current_alert = take_action()
+        except:
+            last_alert = "No alerts till now"
+            current_alert = f"{notification} to ${alert_price}"
+        return render_template("home2.html", initial_price_btc=round(float(get_data_btc["price"]), 2), initial_price_eth=round(float(get_data_eth["price"]), 2), initial_price_bnb=round(float(get_data_bnb["price"]), 2), initial_price_doge=round(float(get_data_doge["price"]), 2), initial_price_xrp=round(float(get_data_xrp["price"]), 2), current_alert=current_alert, last_alert=last_alert, email=email)
+
 
 @views.route("/home", methods=["GET", "POST"])
 def homepage():
@@ -172,6 +185,6 @@ def homepage():
             sys.exit("Sorry you entered an invalid coin name. Retry")
         os.system("cls")
         
-        print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
-        take_action()
-        return redirect(url_for("views.display"))
+        # print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
+        # take_action()
+        return redirect(url_for("views.update_price", email=email))

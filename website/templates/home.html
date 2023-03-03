@@ -3,7 +3,7 @@
 
 {% block content %}
 <h2>
-    <table>
+    <table border="5">
 
     <tr><td>Coin Name</td><td>Initial Prices</td><td>Symbols</td> </tr>
     <tr><td>Bitcoin</td><td>${{initial_price_btc}}</td><td>BTC</td></tr>
@@ -40,9 +40,8 @@
         </tr>
         
         <tr><td><button type="submit">Submit</button></td></tr>
-        <tr>
-            <td><a href="/logout">Logout</a><br></td>
+        <tr><td><button onclick="window.location.href='/logou'">Logout</button></td></tr>
             
-        </tr>
+       
     </table>
 {% endblock %}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prices</title>
+    <meta http-equiv="refresh" content="0; URL=/update_price" />
+</head>
+<body>
+    <h2>
+        <center>
+            <table border="5">
+        
+                <tr><td>Coin Name</td><td>Price</td><td>Symbols</td> </tr>
+                <tr><td>Bitcoin</td><td>${{initial_price_btc}}</td><td>BTC</td></tr>
+                <tr><td>Ethereum</td><td>${{initial_price_eth}}</td><td>ETH</td></tr>
+                <tr><td>BNB</td><td>${{initial_price_bnb}}</td><td>BNB</td></tr>
+                <tr><td>Ripple</td><td>${{initial_price_xrp}}</td><td>XRP</td></tr>
+                <tr><td>Dogecoin</td><td>${{initial_price_doge}}</td><td>DOGE</td></tr>
+                <tr><td>Current Alert: {{current_alert}}</td></tr>
+                <tr><td>Last Alert: {{last_alert}}</td></tr>
+                <tr><td><button onclick="window.location.href='/home?email={{email}}'">Create a new alert</button></td></tr>
+                <tr><td><button onclick="window.location.href='/logout'">Logout</button></td></tr>
+            </table>    
+        </center>
+    </h2>
+</body>
+</html>
