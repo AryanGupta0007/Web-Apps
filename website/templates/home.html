@@ -5,14 +5,15 @@
 <h2>
     <table>
 
-    <tr><td>Coin Name</td><td>Symbol</td></tr>
-    <tr><td>Bitcoin</td><td>BTC</td></tr>
-    <tr><td>Ethereum</td><td>ETH</td></tr>
-    <tr><td>TetherUS</td><td>USDT</td></tr>
-    <tr><td>Ripple</td><td>XRP</td></tr>
-    <tr><td>Dogecoin</td><td>DOGE</td></tr>
+    <tr><td>Coin Name</td><td>Initial Prices</td><td>Symbols</td> </tr>
+    <tr><td>Bitcoin</td><td>${{initial_price_btc}}</td><td>BTC</td></tr>
+    <tr><td>Ethereum</td><td>${{initial_price_eth}}</td><td>ETH</td></tr>
+    <tr><td>BNB</td><td>${{initial_price_bnb}}</td><td>BNB</td></tr>
+    <tr><td>Ripple</td><td>${{initial_price_xrp}}</td><td>XRP</td></tr>
+    <tr><td>Dogecoin</td><td>${{initial_price_doge}}</td><td>DOGE</td></tr>
 
-    
+    </table>    
+</h2>    
 <form action="#" method="post">
     <table>
         <tr>
@@ -30,6 +31,18 @@
             <td><input type="text" required name="Notification"></td>
             <br>
         </tr>
+        <tr>
+            <td><h2>You will recieve Notification on the telegram bot about your desired symbol and alert price, if 
+            you want to change these values you can do so by refilling the above form. 
+            </h2></td>
+            
+            <br>
+        </tr>
         
         <tr><td><button type="submit">Submit</button></td></tr>
+        <tr>
+            <td><a href="/logout">Logout</a><br></td>
+            
+        </tr>
+    </table>
 {% endblock %}

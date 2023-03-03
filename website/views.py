@@ -14,6 +14,8 @@ views = Blueprint("views", __name__)
 apiToken = "6031902860:AAEsuPRks6KfXlpkeKWcgEQ_lYtm_QTsomM"
 
 date_list = []
+user_entry = {}
+check_entry = {}
 # bot = telebot.TeleBot(TELEGRAM_BOT_API)
 # @bot.message_handler(commands=["Alert"])
 # def alert(message):
@@ -64,18 +66,22 @@ def alert_user(current_price, alert_price, notification, email):
     # date_time = Alert_Time(date_time=current_time, user.id=)
     # db.session()
     # email = session["email"]
+    
 
     current_date = datetime.datetime.now().strftime("%d:%m:%Y")
     user = User.query.filter_by(email=email).first()
     # os.system("cls")
     print("Press \"Q\" to exit the program")
     print("Press \"S\" to see the price stats")         
-        
-    msg = f"Dear {user.name} I suggest action (buy or sell) \t as the price currently is: ${current_price}\t which is {notification} to {alert_price}"
-    if current_date not in date_list:
+    check_entry = {str(user.email), current_date}        
+    msg = f"Dear {user.name} (email = {user.email}) I suggest action (buy or sell) on {symbol} \t as the price currently is: ${current_price}\t which is {notification} to ${alert_price}"
+    print(check_entry)
+    print(date_list)
+    if check_entry not in date_list:
     
         send_message_to_group(msg)
-        date_list.append(current_date)
+        user_entry = {user.email, current_date} 
+        date_list.append(user_entry)
         print(date_list)
         time.sleep(10)
     else:
@@ -151,9 +157,15 @@ def update_price():
 @views.route("/home", methods=["GET", "POST"])
 def homepage():
     if request.method == "GET":
+        get_data_btc = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=BTCUSDT").json()
+        get_data_xrp = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=XRPUSDT").json()
+        get_data_doge = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=DOGEUSDT").json()
+        get_data_eth = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=ETHUSDT").json()
+        get_data_bnb = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=BNBUSDT").json()
+        
         email = request.args.get("email")
         session["email"] = email    
-        return render_template("home.html")
+        return render_template("home.html", initial_price_btc=round(float(get_data_btc["price"]), 2), initial_price_eth=round(float(get_data_eth["price"]), 2), initial_price_bnb=round(float(get_data_bnb["price"]), 2), initial_price_doge=round(float(get_data_doge["price"]), 2), initial_price_xrp=round(float(get_data_xrp["price"]), 2))
 
     elif request.method == "POST":
         

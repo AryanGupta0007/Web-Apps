@@ -16,9 +16,9 @@ def signin():
         if user:
             if check_password_hash(user.password, password):
                 flash("Logged in Successfully!", category="success")
-                users = User.query.all()
-                for user in users:
-                    print(user)
+                # users = User.query.all()
+                # for user in users:
+                #     print(user)
                 return redirect(url_for("views.homepage", email=email))
             else:
                 flash("Incorrect Password. Try again.", category="error")
@@ -31,7 +31,7 @@ def signin():
 def signout():
     
     flash("Successfully Logged Out")
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("auth.signin"))
 
 @auth.route("/register", methods=["POST", "GET"])
 @auth.route("/signup", methods=["POST", "GET"])
@@ -41,8 +41,13 @@ def signup():
         name = request.form.get('name')
         password1 = request.form.get("password1")
         password2 = request.form.get("password2")
-        email = request.form.get("email")        
-        if (password1 == password2):
+        email = request.form.get("email")
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash("user already  exists")
+            return redirect(url_for("auth.login"))
+        
+        elif (password1 == password2):
             new_user = User(email=email, name=name, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()            
