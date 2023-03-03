@@ -54,6 +54,48 @@ def do_nothing(price_dollar, alert_price, symbol, difference):
     print(f"Symbol: {symbol}\t\t Current Price: ${round(float(price_dollar), 2)}\t\tAlert Price: ${alert_price}\t Difference from alert price: ${difference}\t", end="")
     sys.stdout.flush()
 
+def take_action():
+    notification = session["notification"] 
+    alert_price = session["alert_price"] 
+    symbol = session["symbol"] 
+    initial_price = session["initial_price"] 
+    email = session["email"]
+    os.system("cls")
+    print("Press \"Q\" to exit the program")
+    print("Press \"S\" to see the price stats")
+
+    
+    URL_for_dollar = f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT"
+
+                
+    
+    get_Data_Dollar = requests.get(URL_for_dollar).json()
+    price_dollar = get_Data_Dollar["price"]
+    
+    # greatest_value = store_highest_value(price)
+    current_price = float(price_dollar)
+    alert_price = float(alert_price)
+    difference = current_price - alert_price
+    difference = round(difference, 2)
+    
+    if (notification == "greater"):
+        
+        if (alert_price < current_price):
+            
+            alert_user(current_price, alert_price, notification, email)
+            
+        else:
+            do_nothing(price_dollar, alert_price, symbol, difference)
+            
+                
+            
+    elif (notification == "lower"):
+        if (alert_price > current_price):
+            alert_user(current_price, alert_price, notification, email)
+        else:
+            do_nothing(price_dollar, alert_price, symbol, difference)
+            
+    
 
 
 def alert_user(current_price, alert_price, notification, email):
@@ -62,10 +104,6 @@ def alert_user(current_price, alert_price, notification, email):
     alert_price = session["alert_price"] 
     symbol = session["symbol"] 
     initial_price = session["initial_price"] 
-        
-    # date_time = Alert_Time(date_time=current_time, user.id=)
-    # db.session()
-    # email = session["email"]
     
 
     current_date = datetime.datetime.now().strftime("%d:%m:%Y")
@@ -101,57 +139,8 @@ def display():
     
 @views.route("/update_price", methods=["POST", "GET"])
 def update_price():
-        notification = session["notification"] 
-        alert_price = session["alert_price"] 
-        symbol = session["symbol"] 
-        initial_price = session["initial_price"] 
-        email = session["email"]
-
-        os.system("cls")
-        print("Press \"Q\" to exit the program")
-        print("Press \"S\" to see the price stats")
-    
-      
-        URL_for_dollar = f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT"
-
-        prices_dollar = []
-        times = []
-                    
-        # os.system("cls")
-        print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
-        # time.sleep(10)
-        symbol_data = {"price":prices_dollar, "time":times}    
-        get_Data_Dollar = requests.get(URL_for_dollar).json()
-        price_dollar = get_Data_Dollar["price"]
-        # symbol = get_Data_Dollar["symbol"]
-        prices_dollar.append(price_dollar)
-        
-        # greatest_value = store_highest_value(price)
-        current_price = float(price_dollar)
-        alert_price = float(alert_price)
-        difference = current_price - alert_price
-        difference = round(difference, 2)
-        
-        if (notification == "greater"):
-            
-            if (alert_price < current_price):
-                
-                alert_user(current_price, alert_price, notification, email)
-                
-            else:
-                do_nothing(price_dollar, alert_price, symbol, difference)
-                
-                    
-                
-        elif (notification == "lower"):
-            if (alert_price > current_price):
-                alert_user(current_price, alert_price, notification, email)
-            else:
-                do_nothing(price_dollar, alert_price, symbol, difference)
-                
-        return redirect(url_for("views.display"))
-
-    
+    take_action()
+    return redirect(url_for("views.display"))
     
 
 @views.route("/home", methods=["GET", "POST"])
@@ -168,7 +157,6 @@ def homepage():
         return render_template("home.html", initial_price_btc=round(float(get_data_btc["price"]), 2), initial_price_eth=round(float(get_data_eth["price"]), 2), initial_price_bnb=round(float(get_data_bnb["price"]), 2), initial_price_doge=round(float(get_data_doge["price"]), 2), initial_price_xrp=round(float(get_data_xrp["price"]), 2))
 
     elif request.method == "POST":
-        
         symbol = request.form.get("Symbol")
         alert_price = request.form.get("Alert-Price")
         notification= request.form.get("Notification")
@@ -176,51 +164,14 @@ def homepage():
         session["alert_price"] = alert_price
         session["symbol"] = symbol
         email = session["email"]
-        os.system("cls")
-        print("Press \"Q\" to exit the program")
-        print("Press \"S\" to see the price stats")
-    
         try:
             get_data = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT").json()
             initial_price = get_data["price"]
             session["initial_price"] = initial_price
         except:
             sys.exit("Sorry you entered an invalid coin name. Retry")
-        
-        prices_dollar = []
-        times = []
-                    
         os.system("cls")
-        print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
-        while True:
-            URL_for_dollar = f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT"
-    
         
-            # time.sleep(5)
-            symbol_data = {"price":prices_dollar, "time":times}    
-            get_Data_Dollar = requests.get(URL_for_dollar).json()
-            price_dollar = get_Data_Dollar["price"]
-            # symbol = get_Data_Dollar["symbol"]
-            prices_dollar.append(price_dollar)
-            
-            # greatest_value = store_highest_value(price)
-            current_price = float(price_dollar)
-            alert_price = float(alert_price)
-            difference = current_price - alert_price
-            difference = round(difference, 2)
-            if (notification == "greater"):
-                
-                if (alert_price < current_price):                  
-                    pass                    
-                else:
-                    do_nothing(price_dollar, alert_price, symbol, difference)
-                        
-                    
-            elif (notification == "lower"):
-                if (alert_price > current_price):
-                    pass
-                else:
-                    do_nothing(price_dollar, alert_price, symbol, difference)
-                    
-            return redirect(url_for("views.display"))
-
+        print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
+        take_action()
+        return redirect(url_for("views.display"))
