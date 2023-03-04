@@ -8,9 +8,10 @@ import telebot
 import datetime
 from datetime import timedelta
 from .models import User
-from . import db 
+from . import db
+  
 views = Blueprint("views", __name__)
-apiToken = "6031902860:AAEsuPRks6KfXlpkeKWcgEQ_lYtm_QTsomM"
+apiToken = os.environ.get("TELEGRAM_API")
 
 date_list = []
 user_entry = {}
@@ -32,7 +33,7 @@ def price_stats(prices):
     current_price = prices[0]
     lowest_price = prices[0]
         
-    for x in range(1, len(prices)):
+    for x in range(1, len(prices)):                               
         if (current_price < prices[x]):
             current_price = prices[x]
     
@@ -47,9 +48,9 @@ def price_stats(prices):
 
 
 def do_nothing():
-   pass
+   pass         
 
-def take_action():
+def take_action():                    
     notification = session["notification"] 
     alert_price = session["alert_price"] 
     symbol = session["symbol"] 
