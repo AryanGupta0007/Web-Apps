@@ -196,7 +196,8 @@ def homepage():
             initial_price = get_data["price"]
             session["initial_price"] = initial_price
         except:
-            sys.exit("Sorry you entered an invalid coin name. Retry")
+            flash("Invalid Symbol please enter a valid symbol. example: XRP, BTC, DOGE")
+            return redirect(url_for("views.homepage", email=email))
         os.system("cls")
         
         # print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
