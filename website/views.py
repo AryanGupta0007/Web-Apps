@@ -51,9 +51,11 @@ def do_nothing():
    pass         
 
 def take_action():                    
-    notification = session["notification"] 
+    notification = session["notification"]
+    # notification = notification.lower() 
     alert_price = session["alert_price"] 
     symbol = session["symbol"] 
+    # symbol = symbol.upper()
     initial_price = session["initial_price"] 
     email = session["email"]
     os.system("cls")
@@ -101,7 +103,8 @@ def alert_user(current_price, alert_price, notification, email):
     symbol = session["symbol"] 
     initial_price = session["initial_price"] 
     current_alert = f"{symbol}{notification} to ${alert_price}"
-
+    # symbol = symbol.upper()
+    # notification = notification.lower()
     current_date = datetime.datetime.now().strftime("%d:%m:%Y")
     user = User.query.filter_by(email=email).first()
     # os.system("cls")
@@ -181,6 +184,9 @@ def homepage():
         symbol = request.form.get("Symbol")
         alert_price = request.form.get("Alert-Price")
         notification= request.form.get("Notification")
+        symbol = symbol.upper()
+        notification = notification.lower()
+    
         session["notification"] = notification
         session["alert_price"] = alert_price
         session["symbol"] = symbol
