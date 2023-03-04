@@ -11,7 +11,7 @@ from .models import User
 from . import db
   
 views = Blueprint("views", __name__)
-apiToken = os.environ.get("TELEGRAM_API")
+apiToken = "6031902860:AAEsuPRks6KfXlpkeKWcgEQ_lYtm_QTsomM"
 
 date_list = []
 user_entry = {}
