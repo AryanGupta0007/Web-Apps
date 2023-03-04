@@ -103,6 +103,7 @@ def alert_user(current_price, alert_price, notification, email):
     symbol = session["symbol"] 
     initial_price = session["initial_price"] 
     current_alert = f"{symbol}{notification} to ${alert_price}"
+    print(current_alert)
     # symbol = symbol.upper()
     # notification = notification.lower()
     current_date = datetime.datetime.now().strftime("%d:%m:%Y")
@@ -184,8 +185,8 @@ def homepage():
         symbol = request.form.get("Symbol")
         alert_price = request.form.get("Alert-Price")
         notification= request.form.get("Notification")
-        symbol = symbol.upper()
-        notification = notification.lower()
+        symbol = symbol.upper().strip()
+        notification = notification.lower().strip()
     
         session["notification"] = notification
         session["alert_price"] = alert_price
@@ -213,8 +214,7 @@ def homepage():
         except:
             flash("Invalid Symbol please enter a valid symbol. example: XRP, BTC, DOGE")
             return redirect(url_for("views.homepage", email=email))
-        os.system("cls")
-        
+        # os.system("cls")
         # print(f"Intial Price: {round(float(initial_price), 2)} Alert Price: {notification} to {alert_price}\n\n")
         # take_action()
         return redirect(url_for("views.update_price", email=email))
