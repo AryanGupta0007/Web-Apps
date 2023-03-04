@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import requests
 import json
-import keyboard
 import sys
 import os
 import time
@@ -17,6 +16,7 @@ date_list = []
 user_entry = {}
 check_entry = {}
 alerts = []
+# n =  6
 # bot = telebot.TeleBot(TELEGRAM_BOT_API)
 # @bot.message_handler(commands=["Alert"])
 # def alert(message):
@@ -99,7 +99,7 @@ def alert_user(current_price, alert_price, notification, email):
     alert_price = session["alert_price"] 
     symbol = session["symbol"] 
     initial_price = session["initial_price"] 
-    current_alert = f"{notification} to ${alert_price}"
+    current_alert = f"{symbol}{notification} to ${alert_price}"
 
     current_date = datetime.datetime.now().strftime("%d:%m:%Y")
     user = User.query.filter_by(email=email).first()
@@ -117,7 +117,7 @@ def alert_user(current_price, alert_price, notification, email):
         user_entry = {user.email : [alert_price, current_date, symbol, notification]} 
         date_list.append(user_entry)
         print(date_list)
-        last_alert = datetime.datetime.now().strftime("%d:%m:%Y %H:%M:%S")
+        last_alert = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         alerts.append(last_alert)
         time.sleep(10)
     else:
@@ -150,15 +150,16 @@ def update_price():
         notification = session["notification"]
         alert_price = session["alert_price"]
         email = session["email"]
+        symbol = session["symbol"]
         # email = request.args.get("email")
         take_action()
         try:
-            current_alert = f"{notification} to ${alert_price}"
+            current_alert = f"{symbol} {notification} to ${alert_price}"
             last_alert = alerts[-1]
         except:
             last_alert = "No alerts till now"
-            current_alert = f"{notification} to ${alert_price}"
-        return render_template("home2.html", initial_price_btc=round(float(get_data_btc["price"]), 2), initial_price_eth=round(float(get_data_eth["price"]), 2), initial_price_bnb=round(float(get_data_bnb["price"]), 2), initial_price_doge=round(float(get_data_doge["price"]), 2), initial_price_xrp=round(float(get_data_xrp["price"]), 2), current_alert=current_alert, last_alert=last_alert, email=email)
+            current_alert = f"{symbol} {notification} to ${alert_price}"
+        return render_template("home2.html", initial_price_btc=float(get_data_btc["price"]), initial_price_eth=float(get_data_eth["price"]), initial_price_bnb=float(get_data_bnb["price"]), initial_price_doge=float(get_data_doge["price"]), initial_price_xrp=float(get_data_xrp["price"]), current_alert=current_alert, last_alert=last_alert, email=email)
 
 
 @views.route("/home", methods=["GET", "POST"])
@@ -173,7 +174,7 @@ def homepage():
         
         email = request.args.get("email")
         session["email"] = email    
-        return render_template("home.html", initial_price_btc=round(float(get_data_btc["price"]), 2), initial_price_eth=round(float(get_data_eth["price"]), 2), initial_price_bnb=round(float(get_data_bnb["price"]), 2), initial_price_doge=round(float(get_data_doge["price"]), 2), initial_price_xrp=round(float(get_data_xrp["price"]), 2))
+        return render_template("home.html", initial_price_btc=float(get_data_btc["price"]), initial_price_eth=float(get_data_eth["price"]), initial_price_bnb=float(get_data_bnb["price"]), initial_price_doge=float(get_data_doge["price"]), initial_price_xrp=float(get_data_xrp["price"]))
 
     elif request.method == "POST":
         symbol = request.form.get("Symbol")

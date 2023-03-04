@@ -7,10 +7,6 @@ from flask_login import LoginManager
 DB_NAME = "database7.db"
 app = Flask(__name__)
 db = SQLAlchemy()
-if not os.path.exists("website/{DB_NAME}"):
-    with open(DB_NAME, "a+") as f:
-        pass
-
 def create_app():
     app = Flask(__name__)
     app.config["SECRET KEY"] = "DSHSHSFHAHF HSFHSKHFS"

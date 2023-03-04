@@ -45,7 +45,7 @@ def signup():
         user = User.query.filter_by(email=email).first()
         if user:
             flash("user already  exists")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("auth.signin"))
         
         elif (password1 == password2):
             new_user = User(email=email, name=name, password=generate_password_hash(password1, method='sha256'))
