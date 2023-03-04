@@ -192,6 +192,21 @@ def homepage():
         session["symbol"] = symbol
         email = session["email"]
         try:
+            alert_price = float(alert_price)
+            if (alert_price < 0):
+                raise ValueError("")
+            
+        except:
+            flash("Invalid alert price Please enter a numeric value greater than 0")
+            return redirect(url_for("views.homepage", email=email))
+        try:
+            if (notification != "greater" and notification != "lower"):
+                raise Exception("")
+        except:
+            flash("Invalid notification value please enter valid notification value example: greater to lower")
+            return redirect(url_for("views.homepage", email=email))
+
+        try:    
             get_data = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol={symbol}USDT").json()
             initial_price = get_data["price"]
             session["initial_price"] = initial_price
