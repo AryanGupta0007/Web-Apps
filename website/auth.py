@@ -23,7 +23,7 @@ def signin():
             else:
                 flash("Incorrect Password. Try again.", category="error")
         else:
-            flash("Incorrect Email. Try again.", category="error")        
+            flash("User Doesn't exist. Register if you are a new user.", category="error")        
     return render_template("login.html")
 
 @auth.route("/logout")
