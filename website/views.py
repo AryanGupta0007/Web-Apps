@@ -13,9 +13,8 @@ from . import db
 views = Blueprint("views", __name__)
 apiToken = "6031902860:AAEsuPRks6KfXlpkeKWcgEQ_lYtm_QTsomM"
 
-date_list = []
+alerts_list = []
 user_entry = {}
-check_entry = {}
 alerts = []
 # n =  6
 # bot = telebot.TeleBot(TELEGRAM_BOT_API)
@@ -103,28 +102,55 @@ def alert_user(current_price, alert_price, notification, email):
     symbol = session["symbol"] 
     initial_price = session["initial_price"] 
     current_alert = f"{symbol}{notification} to ${alert_price}"
+    frequency = session["frequency"]
+    if frequency == "1 Minute":
+        frequency = 1
+    elif frequency == "5 Minutes":
+        frequency = 5
+    elif frequency == "10 Minutes":
+        frequency = 10
+    elif frequency == "30 Minutes":
+        frequency = 30
+    elif frequency == "1 Hour":
+        frequency = 60
+    elif frequency == "3 Hours":
+        frequency = 180
+    elif frequency == "12 Hours":
+        frequency = 720
+    elif frequency == "1 Day":
+        frequency = 1440
+            
     print(current_alert)
     # symbol = symbol.upper()
     # notification = notification.lower()
-    current_date = datetime.datetime.now().strftime("%d:%m:%Y")
+    current_date = datetime.datetime.now().strftime("%H:%M %d:%m:%Y")
+    current_date_ob = datetime.datetime.now().strptime( current_date, "%H:%M %d:%m:%Y")
     user = User.query.filter_by(email=email).first()
     # os.system("cls")
     print("Press \"Q\" to exit the program")
     print("Press \"S\" to see the price stats")    
     email = user.email     
-    check_entry = {user.email : [alert_price, current_date, symbol, notification]}        
+    current_entry = {user.email : [alert_price, current_date_ob, symbol, notification]}        
     msg = f"Dear {user.name} (email = {user.email}) I suggest action (buy or sell) on {symbol} \t as the price currently is: ${current_price}\t which is {notification} to ${alert_price}"
-    print(check_entry)
-    print(date_list)
-    if check_entry not in date_list:
+    print(current_entry)
+    
+    print(alerts_list)
+    if current_entry not in alerts_list:
     
         send_message_to_group(msg)
-        user_entry = {user.email : [alert_price, current_date, symbol, notification]} 
-        date_list.append(user_entry)
-        print(date_list)
+        # current_date_ob = datetime.strptime(current_date, "%H:%M:%S %d:%m:%Y")
+        for x in range(0, frequency):
+            
+            notif_time = current_date_ob + timedelta(minutes=x)
+            user_entry = {user.email : [alert_price, notif_time, symbol, notification]} 
+        
+            alerts_list.append(user_entry)
+            
+
+        print(alerts_list)
         last_alert = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         alerts.append(last_alert)
-        time.sleep(10)
+        # time.sleep(10)
     else:
         print(msg)
            
@@ -156,14 +182,15 @@ def update_price():
         alert_price = session["alert_price"]
         email = session["email"]
         symbol = session["symbol"]
-        # email = request.args.get("email")
+        frequency = session["frequency"]
         take_action()
+        current_alert = f"{symbol} {notification} to ${alert_price} and alert frequency = {frequency}"
         try:
-            current_alert = f"{symbol} {notification} to ${alert_price}"
+            
             last_alert = alerts[-1]
         except:
             last_alert = "No alerts till now"
-            current_alert = f"{symbol} {notification} to ${alert_price}"
+            
         return render_template("home2.html", initial_price_btc=float(get_data_btc["price"]), initial_price_eth=float(get_data_eth["price"]), initial_price_bnb=float(get_data_bnb["price"]), initial_price_doge=float(get_data_doge["price"]), initial_price_xrp=float(get_data_xrp["price"]), current_alert=current_alert, last_alert=last_alert, email=email)
 
 
@@ -171,6 +198,7 @@ def update_price():
 def homepage():
     if request.method == "GET":
         alerts.clear()
+        alerts_list.clear()
         get_data_btc = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=BTCUSDT").json()
         get_data_xrp = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=XRPUSDT").json()
         get_data_doge = requests.get(f"https://www.binance.com/api/v3/ticker/price?symbol=DOGEUSDT").json()
@@ -187,10 +215,11 @@ def homepage():
         notification= request.form.get("Notification")
         symbol = symbol.upper().strip()
         notification = notification.lower().strip()
-    
+        frequency = request.form.get("frequency")
         session["notification"] = notification
         session["alert_price"] = alert_price
         session["symbol"] = symbol
+        session["frequency"] =  frequency
         email = session["email"]
         try:
             alert_price = float(alert_price)
